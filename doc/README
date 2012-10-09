@@ -1,0 +1,24 @@
+
+MUGO RSS
+============
+
+The extension exports content as an RSS feed or allows to read
+an RSS feed to render it in the eZ Publish installation.
+
+Rendering external RSS feeds
+------------------------------
+
+The extension comes with classes to parse a RSS feed to an array.
+You can use that functionality from PHP or from the template engine.
+You need use the fetch function 'mugorss', 'get_rss_feed' in order
+to get an RSS feed into the template context.
+On top, the extension provides a basic custom tag to allow editor
+to include a RSS feed. The custom tag template is fetching the RSS
+feed and includes a 2nd template to render the RSS feed.
+
+Render internal content as an RSS feed
+----------------------------------------
+Develop a template that does the fetch of the content you'd like to
+include in the RSS feed. Configure that template in mugorss.ini.
+Use override templates with the view 'rss' to render content objects
+as RSS entries.
