@@ -1,7 +1,5 @@
 <?php
-require_once( "kernel/common/template.php" );
-
-$tpl = templateInit();
+$tpl = eZTemplate::factory();
 $module = $Params['Module'];
 
 $mugoINI = eZINI::instance( 'mugorss.ini' );
@@ -16,29 +14,37 @@ if( $tplFile )
 	$http = eZHTTPTool::instance();
 	$http->UseFullUrl = true;
 	
-	// Set headers
-	$headers = $mugoINI->variable( 'MugoRSS', 'Headers' );
-	
-	if( !empty( $headers ) )
-	{
-		foreach( $headers as $header )
-		{
-			header( $header );
-		}
-	}
-	
-	$httpCharset = eZTextCodec::httpCharset();
-	header( 'Content-Type: text/xml; charset=' . $httpCharset );
-	
 	$tpl->setVariable( 'param1', $Params['param1'] );
 	$tpl->setVariable( 'param2', $Params['param2'] );
 	
-	echo $tpl->fetch( 'design:mugorss/feeds/' . $tplFile );
+	$output = $tpl->fetch( 'design:mugorss/feeds/' . $tplFile );
 	
-	eZExecution::cleanExit();
+	if( $_REQUEST[ 'debug' ] )
+	{
+		$Result[ 'content' ] = '<pre>' . htmlentities( $output ) . '</pre>';
+		$Result[ 'pagelayout' ] = false;
+	}
+	else
+	{
+
+		// Set RSS specific headers
+		$headers = $mugoINI->variable( 'MugoRSS', 'Headers' );
+		
+		if( !empty( $headers ) )
+		{
+			foreach( $headers as $header )
+			{
+				header( $header );
+			}
+		}
+		
+		echo $output;
+		eZExecution::cleanExit();
+	}
 }
 else
 {
 	die( 'not found' );
 }
+
 ?>
