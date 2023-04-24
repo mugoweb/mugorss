@@ -1,0 +1,18 @@
+{
+  "name": "mugoweb/mugo_rss",
+  "description": "eZ Publish extension for a simple RSS framework",
+  "type": "ezpublish-legacy-extension",
+  "license": "GPL-2.0-only",
+  "authors": [
+    {
+      "name": "Mugo Web",
+      "homepage": "http://www.mugo.ca"
+    }
+  ],
+  "require": {
+    "ezsystems/ezpublish-legacy-installer": "*"
+  },
+  "extra": {
+    "ezpublish-legacy-extension-name": "mugorss"
+  }
+}
