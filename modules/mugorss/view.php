@@ -3,27 +3,30 @@ $tpl = eZTemplate::factory();
 $module = $Params[ 'Module' ];
 
 $mugoINI = eZINI::instance( 'mugorss.ini' );
-$feed_tpl_mapping = $mugoINI->variable( 'MugoRSS', 'FeedTplMapping' );
 
 if( $mugoINI->variable( 'MugoRSS', 'MemoryLimit' ) )
 {
 	ini_set( 'memory_limit', $mugoINI->variable( 'MugoRSS', 'MemoryLimit' ) );
 }
 
-$tplFile = $feed_tpl_mapping[ $Params['feed_id'] ];
+// Force full URLs
+$http = eZHTTPTool::instance();
+$http->UseFullUrl = true;
 
-if( $tplFile )
+$rss_nodes = eZFunctionHandler::execute( 'content', 'tree', array(
+	'parent_node_id'     => 1,
+	'class_filter_array' => array( 'rss_feed' ),
+	'limit'              => 1,
+	'attribute_filter'   => array( array( 'rss_feed/identifier', '=', $Params[ 'feed_id' ] ) ),
+) );
+
+if( count( $rss_nodes ) )
 {
-	
-	// Force full URLs
-	$http = eZHTTPTool::instance();
-	$http->UseFullUrl = true;
-	
-	$tpl->setVariable( 'param1', $Params['param1'] );
-	$tpl->setVariable( 'param2', $Params['param2'] );
-	
-	$output = $tpl->fetch( 'design:mugorss/feeds/' . $tplFile );
-	
+	$tpl->setVariable( 'rss_node', $rss_nodes[0] );
+	$tpl->setVariable( 'feed_id', $Params[ 'feed_id' ] );
+
+	$output = $tpl->fetch( 'design:mugorss/feeds/view.tpl' );
+
 	if( isset( $_REQUEST[ 'debug' ] ) )
 	{
 		$Result[ 'content' ] = '<pre>' . htmlentities( $output ) . '</pre>';
@@ -33,7 +36,7 @@ if( $tplFile )
 	{
 		// Set RSS specific headers
 		$headers = $mugoINI->variable( 'MugoRSS', 'Headers' );
-		
+
 		if( !empty( $headers ) )
 		{
 			foreach( $headers as $header )
@@ -41,14 +44,13 @@ if( $tplFile )
 				header( $header );
 			}
 		}
-		
+
 		echo $output;
 		eZExecution::cleanExit();
 	}
 }
 else
 {
-	die( 'not found' );
+	http_response_code( 404 );
+	eZExecution::cleanExit();
 }
-
-?>
